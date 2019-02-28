@@ -83,7 +83,7 @@ class ReactExoplayerView extends FrameLayout implements
 
     private static final String TAG = "ReactExoplayerView";
 
-    private DefaultBandwidthMeter bandwidthMeter;
+    private final DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(new Handler(), this);
     private static final CookieManager DEFAULT_COOKIE_MANAGER;
     private static final int SHOW_PROGRESS = 1;
     private static final int REPORT_BANDWIDTH = 1;
@@ -112,6 +112,7 @@ class ReactExoplayerView extends FrameLayout implements
     private boolean isFullscreen;
     private boolean isInBackground;
     private boolean isPaused;
+    private boolean isStopped;
     private boolean isBuffering;
     private float rate = 1f;
     private float audioVolume = 1f;
@@ -386,8 +387,8 @@ class ReactExoplayerView extends FrameLayout implements
             player.addListener(this);
             player.setMetadataOutput(this);
             exoPlayerView.setPlayer(player);
+            exoPlayerView.setHideShutterView(exoPlayerView.isHideShutterView());
             audioBecomingNoisyReceiver.setListener(this);
-            bandwidthMeter = new DefaultBandwidthMeter(new Handler(), this);
             setPlayWhenReady(!isPaused);
             playerNeedsSource = true;
 
@@ -486,7 +487,6 @@ class ReactExoplayerView extends FrameLayout implements
         progressHandler.removeMessages(SHOW_PROGRESS);
         themedReactContext.removeLifecycleEventListener(this);
         audioBecomingNoisyReceiver.removeListener();
-        bandwidthMeter = null;
     }
 
     private boolean requestAudioFocus() {
@@ -1077,6 +1077,16 @@ class ReactExoplayerView extends FrameLayout implements
                 pausePlayback();
             }
         }
+    }
+
+    public void setStoppedModifier(boolean stopped) {
+        isStopped = stopped;
+        if (!stopped) {
+            startPlayback();
+        } else {
+            stopPlayback();
+        }
+
     }
 
     public void setMutedModifier(boolean muted) {

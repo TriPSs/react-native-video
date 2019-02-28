@@ -83,6 +83,10 @@ public final class ExoPlayerView extends FrameLayout {
         addViewInLayout(layout, 0, aspectRatioParams);
     }
 
+    public boolean isHideShutterView() {
+        return hideShutterView;
+    }
+
     private void setVideoView() {
         if (surfaceView instanceof TextureView) {
             player.setVideoTextureView((TextureView) surfaceView);
