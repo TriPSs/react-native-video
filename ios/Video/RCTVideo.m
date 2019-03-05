@@ -58,6 +58,7 @@ static int const RCTVideoUnset = -1;
 
   BOOL _muted;
   BOOL _paused;
+  BOOL _stopped;
   BOOL _repeat;
   BOOL _allowsExternalPlayback;
   NSArray * _textTracks;
@@ -75,6 +76,7 @@ static int const RCTVideoUnset = -1;
   BOOL _fullscreenPlayerPresented;
   NSString *_filterName;
   BOOL _filterEnabled;
+  BOOL _wasPaused;
   UIViewController * _presentingViewController;
 #if __has_include(<react-native-video/RCTVideoCache.h>)
   RCTVideoCache * _videoCache;
@@ -849,6 +851,31 @@ static int const RCTVideoUnset = -1;
   _paused = paused;
 }
 
+- (void)setStopped:(BOOL)stopped
+{
+    if (stopped) {
+        [_player pause];
+        [_player setRate:0.0];
+        [self removePlayerItemObservers];
+        _wasPaused = true;
+    } else {
+        if([_ignoreSilentSwitch isEqualToString:@"ignore"]) {
+            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+        } else if([_ignoreSilentSwitch isEqualToString:@"obey"]) {
+            [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:nil];
+        }
+        
+        [_player play];
+        if (_wasPaused) {
+            [self setSrc:_source];
+            _wasPaused =false;
+        }
+        [_player setRate:_rate];
+    }
+    
+    _stopped = stopped;
+}
+
 - (float)getCurrentTime
 {
   return _playerItem != NULL ? CMTimeGetSeconds(_playerItem.currentTime) : 0;
@@ -946,6 +973,7 @@ static int const RCTVideoUnset = -1;
   [self setResizeMode:_resizeMode];
   [self setRepeat:_repeat];
   [self setPaused:_paused];
+  [self setStopped:_stopped];
   [self setControls:_controls];
   [self setAllowsExternalPlayback:_allowsExternalPlayback];
 }
