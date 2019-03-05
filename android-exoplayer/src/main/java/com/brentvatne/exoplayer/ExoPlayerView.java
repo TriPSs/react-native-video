@@ -37,7 +37,8 @@ public final class ExoPlayerView extends FrameLayout {
     private Context context;
     private ViewGroup.LayoutParams layoutParams;
 
-    private boolean useTextureView = false;
+    private boolean useTextureView = true;
+    private boolean hideShutterView = false;
 
     public ExoPlayerView(Context context) {
         this(context, null);
@@ -82,6 +83,10 @@ public final class ExoPlayerView extends FrameLayout {
         addViewInLayout(layout, 0, aspectRatioParams);
     }
 
+    public boolean isHideShutterView() {
+        return hideShutterView;
+    }
+
     private void setVideoView() {
         if (surfaceView instanceof TextureView) {
             player.setVideoTextureView((TextureView) surfaceView);
@@ -103,6 +108,10 @@ public final class ExoPlayerView extends FrameLayout {
         if (this.player != null) {
             setVideoView();
         }
+    }
+
+    private void updateShutterViewVisibility() {
+        shutterView.setVisibility(this.hideShutterView ? View.INVISIBLE : View.VISIBLE);
     }
 
     /**
@@ -156,8 +165,15 @@ public final class ExoPlayerView extends FrameLayout {
     }
 
     public void setUseTextureView(boolean useTextureView) {
-        this.useTextureView = useTextureView;
-        updateSurfaceView();
+        if (useTextureView != this.useTextureView) {
+            this.useTextureView = useTextureView;
+            updateSurfaceView();
+        }
+    }
+
+    public void setHideShutterView(boolean hideShutterView) {
+        this.hideShutterView = hideShutterView;
+        updateShutterViewVisibility();
     }
 
     private final Runnable measureAndLayout = new Runnable() {
@@ -238,7 +254,7 @@ public final class ExoPlayerView extends FrameLayout {
 
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
-            // Do nothing.
+            // Do nothing
         }
 
         @Override
