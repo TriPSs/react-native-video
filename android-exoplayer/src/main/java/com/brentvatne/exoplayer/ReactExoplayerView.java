@@ -228,7 +228,7 @@ class ReactExoplayerView extends FrameLayout implements
     @Override
     public void onHostResume() {
         if (!playInBackground || !isInBackground) {
-            setPlayWhenReady(!isPaused);
+            setPlayWhenReady(!(isPaused || isStopped));
         }
         isInBackground = false;
     }
@@ -389,7 +389,7 @@ class ReactExoplayerView extends FrameLayout implements
             exoPlayerView.setPlayer(player);
             exoPlayerView.setHideShutterView(exoPlayerView.isHideShutterView());
             audioBecomingNoisyReceiver.setListener(this);
-            setPlayWhenReady(!isPaused);
+            setPlayWhenReady(!(isPaused || isStopped));
             playerNeedsSource = true;
 
             PlaybackParameters params = new PlaybackParameters(rate, 1f);
