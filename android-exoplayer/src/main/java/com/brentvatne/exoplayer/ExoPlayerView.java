@@ -253,8 +253,8 @@ public final class ExoPlayerView extends FrameLayout {
         }
 
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest) {
-            // Do nothing
+        public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+            // Do nothing.
         }
 
         @Override
