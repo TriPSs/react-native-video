@@ -623,10 +623,12 @@ class ReactExoplayerView extends FrameLayout implements
             case Player.STATE_IDLE:
                 text += "idle";
                 eventEmitter.idle();
+                clearProgressMessageHandler();
                 break;
             case Player.STATE_BUFFERING:
                 text += "buffering";
                 onBuffering(true);
+                clearProgressMessageHandler();
                 break;
             case Player.STATE_READY:
                 text += "ready";
@@ -634,7 +636,7 @@ class ReactExoplayerView extends FrameLayout implements
                 onBuffering(false);
                 startProgressHandler();
                 videoLoaded();
-                //Setting the visibility for the playerControlView
+                // Setting the visibility for the playerControlView
                 if (playerControlView != null) {
                     playerControlView.show();
                 }
@@ -653,6 +655,15 @@ class ReactExoplayerView extends FrameLayout implements
 
     private void startProgressHandler() {
         progressHandler.sendEmptyMessage(SHOW_PROGRESS);
+    }
+
+    /*
+        The progress message handler will duplicate recursions of the onProgressMessage handler
+        on change of player state from any state to STATE_READY with playWhenReady is true (when
+        the video is not paused). This clears all existing messages.
+     */
+    private void clearProgressMessageHandler() {
+         progressHandler.removeMessages(SHOW_PROGRESS);
     }
 
     private void videoLoaded() {
